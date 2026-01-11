@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import kotlin.properties.Delegates
 
 
@@ -25,8 +26,11 @@ class LoadingButton @JvmOverloads constructor(
     private var circleAngle = 0f
 
     private var buttonText = resources.getString(R.string.button_download)
+    private var defaultButtonText = resources.getString(R.string.button_download)
+    private var buttonBackgroundColor = ContextCompat.getColor(context, R.color.colorPrimary)
+    private var buttonTextColor = ContextCompat.getColor(context, R.color.white)
 
-    var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { p, old, new ->
+    var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { _, old, new ->
         if (new == old) return@observable
         when (new) {
             ButtonState.Loading -> {
@@ -42,7 +46,7 @@ class LoadingButton @JvmOverloads constructor(
                 }
             }
             ButtonState.Completed -> {
-                buttonText = resources.getString(R.string.button_download)
+                buttonText = defaultButtonText
                 valueAnimator.apply {
                     cancel()
                     removeAllListeners()
@@ -69,7 +73,7 @@ class LoadingButton @JvmOverloads constructor(
     private val buttonColorPaint = Paint(
         Paint.ANTI_ALIAS_FLAG
     ).apply {
-        color = ContextCompat.getColor(context, R.color.colorPrimary)
+        color = buttonBackgroundColor
         style = Paint.Style.FILL
     }
 
@@ -77,7 +81,7 @@ class LoadingButton @JvmOverloads constructor(
         Paint.ANTI_ALIAS_FLAG
     ).apply {
         style = Paint.Style.FILL
-        color = ContextCompat.getColor(context, R.color.white)
+        color = buttonTextColor
         textSize = resources.getDimension(R.dimen.default_text_size)
         textAlign = Paint.Align.CENTER
     }
@@ -98,6 +102,14 @@ class LoadingButton @JvmOverloads constructor(
 
     init {
         isClickable = true
+        context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
+            buttonBackgroundColor = getColor(R.styleable.LoadingButton_buttonBackgroundColor, buttonBackgroundColor)
+            buttonTextColor = getColor(R.styleable.LoadingButton_buttonTextColor, buttonTextColor)
+            buttonText = getString(R.styleable.LoadingButton_buttonText) ?: buttonText
+            defaultButtonText = buttonText
+        }
+        buttonColorPaint.color = buttonBackgroundColor
+        paintText.color = buttonTextColor
         valueAnimator.addUpdateListener { animator ->
             progressWidth = animator.animatedValue as Float
             circleAngle = if (widthSize > 0) (progressWidth / widthSize) * 360f else 0f
