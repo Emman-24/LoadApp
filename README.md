@@ -1,5 +1,7 @@
 # LoadApp
 
+![App Screenshot](Screenshot_20260116_160113.png)
+
 LoadApp is an Android application that allows users to download files from the internet and view the download status via notifications and a detail screen. It features a custom animated loading button and demonstrates the use of `DownloadManager`, `NotificationManager`, and custom views.
 
 ## Overview
